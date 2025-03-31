@@ -14,7 +14,10 @@ class UserLogin (BaseModel):
 class UserResponse (BaseModel):
     id: int
     email: EmailStr
+    role: str
     created_at: datetime
+    updated_at: datetime
+    last_login: datetime
     class Config:
         orm_mode = True
 
@@ -29,11 +32,13 @@ class UserResponse (BaseModel):
 
 class MessageCreate(BaseModel):
     message: str
+    # collection: int
 
 class MessageOut(BaseModel):
     id: int
     sender_id: int
     message: str
+    # collection: int
     response: Optional[str]
     timestamp: datetime
 

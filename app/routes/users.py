@@ -46,13 +46,27 @@ async def read_users(
     users = db.query(User).offset(offset).limit(limit).all()
     return users
 
-@router.get("/user/{user_id}")
+@router.get("/user/{user_id}", response_model=UserResponse)
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     """Return user by id"""
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
+
+@router.delete("/delete-by-id/{user_id}")
+def delete_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(
+            status_code=404,
+            detail= "user not found"
+        )
+    db.delete(db_user)
+    db.commit()
+    return {
+        "message" : "User deleted successfully"
+    }
 
 @router.post("/register", response_model=UserOut)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
