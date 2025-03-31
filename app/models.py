@@ -1,12 +1,22 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy import Column, String, ForeignKey, DateTime, Text
+from sqlalchemy.dialects.postgresql import UUID  # Use UUID in PostgreSQL (or `sqlalchemy.types.UUID` for other DBs)
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
+import uuid  # For UUID generation
+import shortuuid  # For short, readable IDs
 
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True, index=True)
+    # Using UUID as primary key
+    id = Column(
+        UUID(as_uuid=True), 
+        primary_key=True, 
+        default=uuid.uuid4,  # Auto-generate UUID on creation
+        unique=True, 
+        index=True
+    )
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
     role = Column(String, default='user')
@@ -18,11 +28,18 @@ class User(Base):
 class Message(Base):
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True, index=True)
-    sender_id = Column(Integer, ForeignKey("users.id"))
+    # Using UUID as primary key
+    id = Column(
+        UUID(as_uuid=True), 
+        primary_key=True, 
+        default=uuid.uuid4,  # Auto-generate UUID on creation
+        unique=True, 
+        index=True
+    )
+    sender_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))  # Match UUID type
     message = Column(Text, nullable=False)
     response = Column(Text)
-    # collection = Column(Integer, index=True, nullable=False)
+    collection = Column(String, index=True, nullable=False, default=shortuuid.uuid)  # ShortUUID for collection
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
 
